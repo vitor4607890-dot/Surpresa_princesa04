@@ -260,60 +260,204 @@ body{
         radial-gradient(circle at center,#270033,#08000d 65%,#000);
     flex-direction:column;
     padding:25px;
+    perspective:1400px;
 }
 
-.paper{
+#letterParticles{
+    position:absolute;
+    inset:0;
+    z-index:5;
+    pointer-events:none;
+}
+
+/* ===== envelope fechado ===== */
+
+.envelopeWrap{
     position:relative;
-    width:min(90%,520px);
-    max-height:78vh;
-    overflow:auto;
-    padding:35px 28px;
-    background:#f8edff;
-    color:#421050;
-    border-radius:5px;
+    z-index:3;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    transition:opacity .6s ease, transform .6s ease;
+}
+
+.envelopeWrap.opened{
+    opacity:0;
+    transform:scale(.92);
+    pointer-events:none;
+}
+
+.envelope{
+    position:relative;
+    width:min(78vw,280px);
+    aspect-ratio:280/185;
+    transform-style:preserve-3d;
+}
+
+.envelopeBody{
+    position:absolute;
+    inset:0;
+    border-radius:6px;
+    background:
+        linear-gradient(155deg,#caa0ff 0%,#a869e8 45%,#8a4cd4 100%);
     box-shadow:
-        0 0 30px rgba(210,120,255,.6),
-        10px 15px 35px rgba(0,0,0,.7);
-    transform:rotate(-1deg) scaleY(0);
-    transform-origin:top;
-    transition:transform 1.5s cubic-bezier(.2,.8,.2,1);
+        0 18px 40px rgba(40,0,60,.55),
+        0 0 30px rgba(180,100,255,.35);
+}
+
+.envelopeShadeLeft,
+.envelopeShadeRight{
+    position:absolute;
+    top:0;
+    width:50%;
+    height:100%;
+    pointer-events:none;
+}
+
+.envelopeShadeLeft{
+    left:0;
+    clip-path:polygon(0 0,100% 50%,0 100%);
+    background:linear-gradient(160deg,rgba(255,255,255,.18),transparent 60%);
+}
+
+.envelopeShadeRight{
+    right:0;
+    clip-path:polygon(100% 0,0 50%,100% 100%);
+    background:linear-gradient(200deg,rgba(0,0,0,.15),transparent 60%);
+}
+
+.envelopeFlap{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:62%;
+    clip-path:polygon(0 0,100% 0,50% 100%);
+    background:linear-gradient(160deg,#dcb8ff 0%,#b483ef 60%,#9660da 100%);
+    transform-origin:top center;
+    transform:rotateX(0deg);
+    transition:transform 1s cubic-bezier(.3,.7,.2,1);
+    box-shadow:0 6px 14px rgba(40,0,60,.3);
     z-index:2;
 }
 
-#letterScreen.active .paper{
-    transform:rotate(-1deg) scaleY(1);
+.envelope.open .envelopeFlap{
+    transform:rotateX(-150deg);
 }
 
-.paper:before,
-.paper:after{
-    content:"";
+.envelopeSeal{
     position:absolute;
-    width:70px;
-    height:20px;
-    background:rgba(210,170,230,.25);
-    transform:rotate(-5deg);
+    left:50%;
+    top:58%;
+    transform:translate(-50%,-50%);
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#f3d9ff,#a94cff 70%,#7a1fc9);
+    box-shadow:0 0 14px rgba(190,90,255,.7),0 2px 4px rgba(0,0,0,.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    z-index:3;
+    transition:opacity .4s ease, transform .4s ease;
 }
 
-.paper:before{
-    top:15px;
-    left:-20px;
+.envelope.open .envelopeSeal{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.4) rotate(25deg);
 }
 
-.paper:after{
-    bottom:20px;
-    right:-20px;
-    transform:rotate(8deg);
+.envelopeHint{
+    margin-top:22px;
+    color:#dca5ff;
+    animation:hintPulse 1.8s infinite;
+    font-size:15px;
 }
 
-.paper h2{
-    margin-bottom:20px;
-    color:#7c219f;
+/* ===== carta que emerge de dentro do envelope ===== */
+
+.paper{
+    position:absolute;
+    width:min(90%,520px);
+    max-height:78vh;
+    overflow:auto;
+    left:50%;
+    top:52%;
+    padding:35px 28px;
+    color:#421050;
+    border-radius:4px;
+    clip-path:polygon(1% 0%,99% 1%,100% 98%,2% 100%,0% 3%);
+    background:
+        repeating-linear-gradient(0deg,rgba(150,90,190,.035) 0px,transparent 1px,transparent 3px),
+        repeating-linear-gradient(90deg,rgba(150,90,190,.025) 0px,transparent 1px,transparent 4px),
+        radial-gradient(circle at 20% 12%,rgba(255,255,255,.55),transparent 55%),
+        #f8edff;
+    box-shadow:
+        0 0 30px rgba(210,120,255,.55),
+        14px 22px 40px rgba(0,0,0,.55);
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.16) rotate(-4deg);
+    pointer-events:none;
+    z-index:4;
 }
 
-.paper p{
+.paper.rising{
+    transition:
+        transform 1.1s cubic-bezier(.2,.75,.25,1.05),
+        opacity .5s ease;
+    opacity:1;
+    transform:translate(-50%,-72%) scale(.5) rotate(-2deg);
+}
+
+.paper.open{
+    transition:
+        transform 1s cubic-bezier(.16,.85,.24,1),
+        opacity .4s ease,
+        top .9s ease;
+    top:50%;
+    transform:translate(-50%,-50%) scale(1) rotate(-1deg);
+    pointer-events:auto;
+}
+
+.paperCrease{
+    position:absolute;
+    left:4%;
+    right:4%;
+    height:1px;
+    background:linear-gradient(90deg,transparent,rgba(120,60,150,.22) 50%,transparent);
+    box-shadow:0 1px 1px rgba(255,255,255,.5);
+    pointer-events:none;
+}
+
+.paperCreaseTop{ top:33%; }
+.paperCreaseBottom{ top:66%; }
+
+.paperContent{
+    position:relative;
+    z-index:1;
+}
+
+.paperLine{
     line-height:1.7;
     font-size:16px;
     margin-bottom:15px;
+    opacity:0;
+    transform:translateY(10px);
+    pointer-events:none;
+    transition:opacity .8s ease, transform .8s ease;
+}
+
+.paperLine.show{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+}
+
+h2.paperLine{
+    margin-bottom:20px;
+    color:#7c219f;
 }
 
 .nextBtn{
@@ -353,6 +497,7 @@ body{
     animation:planetFloat 5s infinite ease-in-out;
     z-index:3;
     transition:filter .4s, box-shadow .4s;
+    overflow:hidden;
 }
 
 .planet.visited{
@@ -360,79 +505,69 @@ body{
     box-shadow:0 0 45px currentColor;
 }
 
+/* Marte */
+
 .planet1{
     width:80px;
     height:80px;
-    background:
-        radial-gradient(circle at 32% 28%,rgba(255,190,130,.9) 0 7%,transparent 8%),
-        radial-gradient(circle at 68% 65%,rgba(115,40,25,.65) 0 10%,transparent 11%),
-        linear-gradient(145deg,#ff9b55,#c94832 48%,#7d211f);
     left:17%;
     top:30%;
-    box-shadow:0 0 22px rgba(255,90,50,.7), inset -12px -10px 18px rgba(60,0,0,.3);
+    color:#ff8a5c;
+    background:
+        radial-gradient(circle at 30% 26%,#ffcfa8 0%,#f0925c 30%,#c0562a 62%,#7c2c12 100%);
+    box-shadow:
+        0 0 25px currentColor,
+        inset -10px -10px 18px rgba(0,0,0,.4),
+        inset 6px 6px 14px rgba(255,220,190,.25);
 }
+
+/* Júpiter */
 
 .planet2{
     width:110px;
     height:110px;
-    background:
-        radial-gradient(circle at 35% 30%,rgba(255,245,190,.8) 0 5%,transparent 6%),
-        radial-gradient(circle at 67% 60%,rgba(210,145,55,.5) 0 8%,transparent 9%),
-        linear-gradient(145deg,#ffe7a2,#d99b45 52%,#a96825);
     right:15%;
     top:40%;
-    box-shadow:0 0 25px rgba(255,205,100,.65), inset -15px -12px 20px rgba(90,45,0,.25);
+    color:#e8c48a;
+    background:
+        radial-gradient(circle at 34% 28%,rgba(255,255,255,.3),transparent 45%),
+        repeating-linear-gradient(
+            0deg,
+            #e7c79a 0px,#e7c79a 9px,
+            #d2a877 9px,#d2a877 17px,
+            #b9895a 17px,#b9895a 24px,
+            #dcb383 24px,#dcb383 33px,
+            #c99a68 33px,#c99a68 40px
+        );
+    box-shadow:
+        0 0 30px currentColor,
+        inset -12px -12px 22px rgba(0,0,0,.35),
+        inset 8px 8px 16px rgba(255,235,205,.2);
 }
+
+/* Vênus */
 
 .planet3{
     width:60px;
     height:60px;
-    background:
-        radial-gradient(circle at 30% 35%,rgba(255,255,255,.5) 0 4%,transparent 5%),
-        radial-gradient(circle at 62% 55%,rgba(180,150,90,.6) 0 9%,transparent 10%),
-        linear-gradient(145deg,#f5e3b0,#c99b54 55%,#80602f);
     left:45%;
     bottom:20%;
-    box-shadow:0 0 22px rgba(245,210,130,.55), inset -9px -8px 14px rgba(65,40,10,.28);
-}
-
-/* Saturno: anel desenhado sem imagem externa */
-.planet3::before{
-    content:"";
-    position:absolute;
-    width:94px;
-    height:28px;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%) rotate(-18deg);
-    border:6px solid rgba(224,195,135,.8);
-    border-left-color:rgba(255,230,175,.65);
-    border-right-color:rgba(155,115,60,.65);
-    border-radius:50%;
-    box-shadow:0 0 8px rgba(255,220,150,.35);
-    pointer-events:none;
-}
-
-.planet3::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    background:linear-gradient(90deg,transparent 43%,rgba(80,45,10,.18) 50%,transparent 57%);
-    pointer-events:none;
-}
-
-/* O planeta secreto agora é Plutão */
-.planetSecret{
-    width:30px;
-    height:30px;
+    color:#f5e2a8;
     background:
-        radial-gradient(circle at 32% 30%,#fff5df 0 8%,transparent 9%),
-        radial-gradient(circle at 65% 62%,#a88473 0 13%,transparent 14%),
-        linear-gradient(145deg,#d8b8a7,#9d7165 58%,#654840);
+        radial-gradient(circle at 32% 28%,#fff8e2 0%,#f3dfa4 42%,#dcb96e 75%,#b4914f 100%);
+    box-shadow:
+        0 0 22px currentColor,
+        inset -8px -8px 14px rgba(0,0,0,.3),
+        inset 5px 5px 10px rgba(255,250,230,.3);
+}
+
+.planetSecret{
+    width:26px;
+    height:26px;
+    background:#fff2ff;
     left:50%;
     top:16%;
-    box-shadow:0 0 15px #fff,0 0 35px rgba(225,180,150,.8),inset -5px -5px 8px rgba(50,20,15,.3);
+    box-shadow:0 0 15px #fff,0 0 35px #d68bff;
     opacity:0;
     transform:scale(.3);
     pointer-events:none;
@@ -699,6 +834,64 @@ body{
     flex-direction:column;
 }
 
+#giftParticles{
+    position:absolute;
+    inset:0;
+    z-index:13;
+    pointer-events:none;
+}
+
+/* partículas ambiente ao redor da caixa, antes de abrir */
+
+.giftSparkle{
+    position:absolute;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:#f1d9ff;
+    box-shadow:0 0 8px #c98bff,0 0 14px #a94cff;
+    opacity:0;
+    pointer-events:none;
+    animation:giftSparkleTwinkle 2.8s infinite ease-in-out;
+    transition:opacity .5s ease;
+}
+
+@keyframes giftSparkleTwinkle{
+    0%,100%{opacity:0;transform:scale(.4)}
+    50%{opacity:1;transform:scale(1.15)}
+}
+
+.gift.open .giftSparkle{
+    opacity:0;
+    animation:none;
+}
+
+/* luz saindo de dentro da caixa quando a tampa abre */
+
+.giftLightBurst{
+    position:fixed;
+    left:50%;
+    top:50%;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:radial-gradient(circle,#fff 0%,#e6c2ff 32%,rgba(180,90,255,0) 72%);
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0;
+    pointer-events:none;
+    z-index:14;
+}
+
+.giftLightBurst.burst{
+    animation:giftLightBurstAnim 1.1s ease-out forwards;
+}
+
+@keyframes giftLightBurstAnim{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(0)}
+    15%{opacity:1}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(24)}
+}
+
 /* corações da surpresa */
 
 .giftHeart{
@@ -802,6 +995,21 @@ body{
     margin-top:40px;
     cursor:pointer;
     z-index:10;
+    transform-origin:50% 85%;
+}
+
+.gift.shaking{
+    animation:giftShake .55s ease-in-out;
+}
+
+@keyframes giftShake{
+    0%,100%{transform:rotate(0deg) scale(1)}
+    15%{transform:rotate(-6deg) scale(1.02)}
+    30%{transform:rotate(5deg) scale(1.03)}
+    45%{transform:rotate(-4deg) scale(1.02)}
+    60%{transform:rotate(3deg) scale(1.01)}
+    75%{transform:rotate(-2deg) scale(1.01)}
+    90%{transform:rotate(1deg) scale(1)}
 }
 
 .giftBox{
@@ -812,6 +1020,11 @@ body{
     background:#a43bd0;
     border-radius:5px;
     box-shadow:0 0 30px rgba(180,70,255,.5);
+    transition:box-shadow .3s ease;
+}
+
+.gift.shaking .giftBox{
+    box-shadow:0 0 46px rgba(210,140,255,.95);
 }
 
 .giftBox:before{
@@ -1053,6 +1266,71 @@ body{
     transform:translate(-50%,-50%) scale(1);
 }
 
+/* easter egg: o alien cruzando o final calmo da página */
+
+.finalAlien{
+    position:fixed;
+    z-index:9;
+    font-size:26px;
+    display:none;
+    cursor:pointer;
+    filter:
+        drop-shadow(0 0 8px #c85cff)
+        drop-shadow(0 0 18px #8d20d4);
+}
+
+.finalAlien.caught{
+    filter:
+        drop-shadow(0 0 14px #fff)
+        drop-shadow(0 0 28px #d35cff);
+}
+
+.finalAlienBubble{
+    position:absolute;
+    left:32px;
+    top:-16px;
+    width:150px;
+    padding:8px 11px;
+    border-radius:14px;
+    background:rgba(35,0,50,.92);
+    border:1px solid #c968ff;
+    color:#f0d7ff;
+    font-size:11px;
+    font-weight:bold;
+    text-align:center;
+    box-shadow:0 0 14px rgba(190,70,255,.5);
+    opacity:0;
+    transform:scale(.7);
+    transition:opacity .35s ease, transform .35s ease;
+    pointer-events:none;
+}
+
+.finalAlienBubble.show{
+    opacity:1;
+    transform:scale(1);
+}
+
+.finalAlienCaption{
+    position:fixed;
+    left:50%;
+    bottom:14%;
+    transform:translateX(-50%);
+    color:#e6c8ff;
+    font-size:14px;
+    text-shadow:0 0 12px rgba(190,110,255,.6);
+    opacity:0;
+    z-index:9;
+    transition:opacity .8s ease;
+    pointer-events:none;
+    text-align:center;
+    padding:0 20px;
+    max-width:85%;
+}
+
+.finalAlienCaption.show{
+    opacity:1;
+}
+
 .finalTitle{
     font-size:clamp(30px,9vw,65px);
     color:#e7bdff;
@@ -1187,56 +1465,6 @@ body.glitching{
     pointer-events:auto;
     cursor:pointer;
 }
-
-
-/* ================= POLIMENTO FINAL — EXPERIÊNCIA VIVA 💜 ================= */
-.storyChapter{position:absolute;top:9%;left:50%;transform:translateX(-50%) translateY(-8px);z-index:7;color:rgba(232,201,255,.55);font-size:11px;letter-spacing:.22em;text-transform:uppercase;opacity:0;transition:opacity 1s ease,transform 1s ease;pointer-events:none;white-space:nowrap;text-align:center}
-.storyChapter.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.finalHeartPulse{animation:finalHeartPulse 2.6s ease-in-out infinite}
-@keyframes finalHeartPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(210,130,255,.25))}50%{filter:drop-shadow(0 0 28px rgba(210,130,255,.8))}}
-.finalTapSpark{position:absolute;width:5px;height:5px;border-radius:50%;background:#f1d8ff;box-shadow:0 0 8px #c968ff,0 0 18px #a42cff;pointer-events:none;animation:finalTapSpark 900ms ease-out forwards;z-index:8}
-@keyframes finalTapSpark{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.15)}}
-#preFinalAlien{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;background:rgba(3,0,8,.72);opacity:0;transition:opacity .8s ease}
-#preFinalAlien.show{display:flex;opacity:1}
-#preFinalAlien .preAlien{position:absolute;left:-120px;font-size:58px;filter:drop-shadow(0 0 14px #c85cff) drop-shadow(0 0 38px #8d20d4);transform:translateX(0) rotate(-6deg)}
-#preFinalAlien.show .preAlien{animation:preAlienFly 8.2s cubic-bezier(.2,.75,.2,1) forwards}
-@keyframes preAlienFly{0%{left:-120px;top:62%;transform:rotate(-8deg) scale(.75)}45%{left:43%;top:34%;transform:rotate(4deg) scale(1.08)}70%{left:52%;top:52%;transform:rotate(-3deg) scale(1)}100%{left:110%;top:40%;transform:rotate(7deg) scale(.7)}}
-.preAlienBubble{position:absolute;top:18%;left:50%;transform:translateX(-50%) translateY(8px);padding:12px 18px;border:1px solid rgba(220,160,255,.55);border-radius:18px;background:rgba(20,4,30,.88);color:#f1d9ff;font-size:13px;opacity:0;transition:opacity .7s ease,transform .7s ease;text-align:center;white-space:nowrap;box-shadow:0 0 25px rgba(170,60,255,.25)}
-#preFinalAlien.show .preAlienBubble{opacity:1;transform:translateX(-50%) translateY(0);transition-delay:.9s}
-.preAlienPhrase{position:absolute;bottom:22%;left:50%;transform:translateX(-50%);color:#dfb4ff;font-size:16px;letter-spacing:.04em;text-shadow:0 0 18px rgba(190,90,255,.65);opacity:0;transition:opacity 1s ease;text-align:center;white-space:nowrap}
-.preAlienPhrase.show{opacity:1}
-@media(max-width:520px){.preAlienBubble{font-size:11px;max-width:88%;white-space:normal}.preAlienPhrase{font-size:14px;white-space:normal;width:90%}}
-.ultimateEnd{position:absolute;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.94);opacity:0;visibility:hidden;pointer-events:none;transition:opacity 1.3s ease,visibility 1.3s ease}
-.ultimateEnd.show{opacity:1;visibility:visible}
-.ultimateEndWord{color:#ead3ff;font-size:clamp(25px,8vw,44px);font-weight:600;letter-spacing:.12em;text-shadow:0 0 18px #b34cff,0 0 50px rgba(170,60,255,.55);transition:opacity 1s ease}
-.ultimateEndSub{margin-top:16px;color:rgba(224,184,255,.55);font-size:13px;opacity:0;transform:translateY(8px);transition:opacity 1s ease,transform 1s ease;text-align:center;padding:0 20px}
-.ultimateEndSub.show{opacity:1;transform:translateY(0)}
-.ultimateAlien{margin-top:25px;font-size:36px;opacity:0;transform:scale(.6) translateY(12px);filter:drop-shadow(0 0 12px #c85cff) drop-shadow(0 0 35px #8d20d4);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.9,.2,1)}
-.ultimateAlien.show{opacity:1;transform:scale(1) translateY(0);animation:ultimateAlienFloat 2.2s ease-in-out infinite}
-@keyframes ultimateAlienFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
-.ultimateAlienText{margin-top:8px;color:#dca8ff;font-size:13px;opacity:0;transition:opacity .8s ease;letter-spacing:.08em}.ultimateAlienText.show{opacity:1}
-.finalMemoryLabel{display:block;margin-top:14px;font-size:.72em;opacity:.55;letter-spacing:.08em}
-
-/* ================= HISTÓRIA + TOQUE + PRIMEIRA FOTO ================= */
-.staticChapter{position:absolute;top:6%;left:50%;transform:translateX(-50%);z-index:15;color:rgba(232,201,255,.62);font-size:10px;letter-spacing:.25em;text-transform:uppercase;text-align:center;pointer-events:none;text-shadow:0 0 14px rgba(190,90,255,.35);animation:chapterFloat 3.5s ease-in-out infinite;white-space:nowrap}
-@keyframes chapterFloat{0%,100%{opacity:.55;transform:translateX(-50%) translateY(0)}50%{opacity:.9;transform:translateX(-50%) translateY(-3px)}}
-.touchRipple{position:fixed;width:10px;height:10px;border:1px solid rgba(225,180,255,.8);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%) scale(.5);box-shadow:0 0 12px rgba(190,90,255,.65),0 0 28px rgba(150,50,255,.3);animation:touchRipple .75s ease-out forwards}
-@keyframes touchRipple{0%{opacity:.9;transform:translate(-50%,-50%) scale(.5)}100%{opacity:0;transform:translate(-50%,-50%) scale(5.5)}}
-.photoMoment{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;gap:10px}
-.photoFrame{width:min(82%,270px);aspect-ratio:4/5;background:linear-gradient(145deg,#f9f3ff,#ded0e9);padding:12px 12px 42px;border-radius:4px;box-shadow:0 16px 35px rgba(0,0,0,.45),0 0 25px rgba(190,90,255,.18);transform:rotate(-1.5deg);position:relative;overflow:hidden}
-.photoFrame:before{content:"";position:absolute;inset:12px 12px 42px;background:radial-gradient(circle at 50% 40%,rgba(205,145,255,.22),transparent 45%),linear-gradient(135deg,rgba(255,255,255,.08),rgba(130,70,170,.08));border:1px dashed rgba(110,70,130,.28)}
-.photoFrame:after{content:"📸";position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-size:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
-.photoFrameShine{position:absolute;inset:12px 12px 42px;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.38) 48%,transparent 61%);transform:translateX(-120%);animation:photoShine 4.5s ease-in-out infinite}
-@keyframes photoShine{0%,65%{transform:translateX(-120%)}82%,100%{transform:translateX(120%)}}
-.photoCaption{position:absolute;bottom:12px;left:0;right:0;color:#3f294a;font-family:Georgia,serif;font-size:13px;text-align:center}
-.album.emptyPhoto .album{background:linear-gradient(155deg,#f9f3ff,#e8d9f0);border-color:rgba(225,190,255,.75);box-shadow:0 0 45px rgba(190,90,255,.35),0 20px 45px rgba(0,0,0,.55);padding:20px}
-.album.emptyPhoto .album:before{border-color:rgba(120,70,145,.25)}
-.album.emptyPhoto .albumPage{color:#4b3155;width:100%}
-.album.emptyPhoto .albumEmptyTitle{color:#35203e;font-family:Georgia,serif}
-.album.emptyPhoto .finalMemoryLabel{color:#6c4d77}
-
-@media (prefers-reduced-motion:reduce){.finalHeartPulse,.ultimateAlien{animation:none!important}}
-
 </style>
 </head>
 
@@ -1279,8 +1507,6 @@ body.glitching{
 
 <section id="heartScreen" class="screen">
 
-    <div class="staticChapter">capítulo I · onde tudo começa 💜</div>
-
     <h2 class="heartTitle secretTitle" id="heartTitle" data-secret="descobriu um segredo. 👀💜<br><br>desde que te conheci, meu coração fica assim: acelerado igual esse aí, prestes a explodir de tanto sentir.">
         isso aqui é só o começo...
     </h2>
@@ -1298,41 +1524,69 @@ body.glitching{
 
 <section id="letterScreen" class="screen">
 
-    <div class="staticChapter">capítulo II · coisas que eu queria te dizer</div>
+    <canvas id="letterParticles"></canvas>
 
-    <div class="paper">
+    <div class="envelopeWrap" id="envelopeWrap">
 
-        <h2 class="secretTitle" data-secret="achou. 👀💜<br><br>essa carta eu reescrevi umas 4 vezes até ficar do jeito que eu queria — porque você merece as palavras certas, não as primeiras que vieram na cabeça.">
-            Para minha princesa 💜
-        </h2>
+        <div class="envelope" id="envelope">
 
-        <p>
-            Talvez eu não consiga colocar em palavras tudo que sinto,
-            mas eu queria fazer alguma coisa diferente pra você.
-        </p>
+            <div class="envelopeBody"></div>
 
-        <p>
-            Esse primeiro mês pode parecer pouco para algumas pessoas,
-            mas pra mim ele significa muito.
-        </p>
+            <div class="envelopeShadeLeft"></div>
+            <div class="envelopeShadeRight"></div>
 
-        <p>
-            Cada conversa, cada risada, cada momento e até as pequenas
-            coisas fizeram esse mês ser especial.
-        </p>
+            <div class="envelopeFlap" id="envelopeFlap"></div>
 
-        <p>
-            Eu só quero que você saiba que gosto muito de ter você
-            comigo e espero que esse seja só o começo da nossa história.
-        </p>
+            <div class="envelopeSeal">💜</div>
 
-        <p>
-            Feliz 1 mês, minha princesa. 💜
-        </p>
+        </div>
 
-        <button class="nextBtn" onclick="goTo(3)">
-            nosso universo 🌌
-        </button>
+        <div class="envelopeHint" id="envelopeHint">
+            toca no envelope 💌
+        </div>
+
+    </div>
+
+    <div class="paper" id="paper">
+
+        <div class="paperCrease paperCreaseTop"></div>
+        <div class="paperCrease paperCreaseBottom"></div>
+
+        <div class="paperContent" id="paperContent">
+
+            <h2 class="paperLine secretTitle" data-secret="achou. 👀💜<br><br>essa carta eu reescrevi umas 4 vezes até ficar do jeito que eu queria — porque você merece as palavras certas, não as primeiras que vieram na cabeça.">
+                Para minha princesa 💜
+            </h2>
+
+            <p class="paperLine">
+                Talvez eu não consiga colocar em palavras tudo que sinto,
+                mas eu queria fazer alguma coisa diferente pra você.
+            </p>
+
+            <p class="paperLine">
+                Esse primeiro mês pode parecer pouco para algumas pessoas,
+                mas pra mim ele significa muito.
+            </p>
+
+            <p class="paperLine">
+                Cada conversa, cada risada, cada momento e até as pequenas
+                coisas fizeram esse mês ser especial.
+            </p>
+
+            <p class="paperLine">
+                Eu só quero que você saiba que gosto muito de ter você
+                comigo e espero que esse seja só o começo da nossa história.
+            </p>
+
+            <p class="paperLine">
+                Feliz 1 mês, minha princesa. 💜
+            </p>
+
+            <button class="nextBtn paperLine" onclick="goTo(3)">
+                nosso universo 🌌
+            </button>
+
+        </div>
 
     </div>
 
@@ -1343,8 +1597,6 @@ body.glitching{
 
 <section id="universe" class="screen">
 
-    <div class="staticChapter">capítulo III · um pequeno universo nosso 🌌</div>
-
     <h2 class="universeTitle secretTitle" data-secret="👀 achou mais um segredo.<br><br>se um dia a gente morar longe das estrelas, ainda assim eu ia te encontrar. você é fácil de reconhecer: é a mais brilhante.">
         nosso universo 🌌
     </h2>
@@ -1352,21 +1604,18 @@ body.glitching{
     <div
         class="planet planet1"
         id="planetEl1"
-        aria-label="Marte"
         onclick="planetMessage(1,this)">
     </div>
 
     <div
         class="planet planet2"
         id="planetEl2"
-        aria-label="Vênus"
         onclick="planetMessage(2,this)">
     </div>
 
     <div
         class="planet planet3"
         id="planetEl3"
-        aria-label="Saturno"
         onclick="planetMessage(3,this)">
     </div>
 
@@ -1416,8 +1665,6 @@ body.glitching{
 
 <section id="constellation" class="screen">
 
-    <div class="staticChapter">capítulo IV · as estrelas que encontrei em você ✨</div>
-
     <h2 class="constellationTitle secretTitle" data-secret="🕵️‍♀️ te peguei explorando demais.<br><br>gosto disso. gosto de você curiosa, querendo descobrir tudo — foi assim que a gente começou.">
         nossa constelação ✨
     </h2>
@@ -1457,7 +1704,9 @@ body.glitching{
 
 <section id="giftScreen" class="screen">
 
-    <div class="staticChapter">capítulo V · uma pequena surpresa 🎁</div>
+    <canvas id="giftParticles"></canvas>
+
+    <div class="giftLightBurst" id="giftLightBurst"></div>
 
     <h2
         style="
@@ -1488,6 +1737,13 @@ body.glitching{
 
         <div class="giftBox"></div>
 
+        <div class="giftSparkle" style="left:-14px;top:14%;animation-delay:.2s"></div>
+        <div class="giftSparkle" style="right:-16px;top:24%;animation-delay:.9s"></div>
+        <div class="giftSparkle" style="left:-6px;bottom:16%;animation-delay:1.6s"></div>
+        <div class="giftSparkle" style="right:-8px;bottom:8%;animation-delay:.5s"></div>
+        <div class="giftSparkle" style="left:40%;top:-18px;animation-delay:1.1s"></div>
+        <div class="giftSparkle" style="right:32%;top:-22px;animation-delay:1.9s"></div>
+
     </div>
 
     <div class="giftHint">
@@ -1507,7 +1763,7 @@ body.glitching{
     <button
         class="nextBtn"
         style="margin-top:60px"
-        onclick="goToFinalWithAlien()"
+        onclick="goTo(6)"
     >
         última surpresa ✨
     </button>
@@ -1515,20 +1771,11 @@ body.glitching{
 </section>
 
 
-<!-- ================= ALIEN ANTES DO FINAL ================= -->
-<div id="preFinalAlien" aria-hidden="true">
-    <div class="preAlienBubble" id="preFinalAlienBubble">ACHOU QUE EU TINHA IDO EMBORA? 👽</div>
-    <div class="preAlien" id="preFinalAlienCharacter">👽</div>
-    <div class="preAlienPhrase" id="preFinalAlienPhrase">até o alien já sabia... 💭🌌</div>
-</div>
-
 <!-- ================= FINAL ================= -->
 
 <section id="finalScreen" class="screen">
 
-    <div class="storyChapter" id="storyChapter">último capítulo · nós 💜</div>
-
-    <canvas id="finaleCanvas" onclick="finalHeartTap(event)"></canvas>
+    <canvas id="finaleCanvas"></canvas>
 
     <div class="finaleBlackout" id="finaleBlackout"></div>
 
@@ -1541,6 +1788,13 @@ body.glitching{
     </div>
 
     <div class="heartWords" id="heartWords"></div>
+
+    <div class="finalAlien" id="finalAlien">
+        👽
+        <div class="finalAlienBubble" id="finalAlienBubble"></div>
+    </div>
+
+    <div class="finalAlienCaption" id="finalAlienCaption"></div>
 
     <div class="finalContent" id="finalContent">
 
@@ -1582,14 +1836,6 @@ body.glitching{
             ver de novo 💜
         </button>
 
-    </div>
-
-
-    <div class="ultimateEnd" id="ultimateEnd">
-        <div class="ultimateEndWord" id="ultimateEndWord">fim.</div>
-        <div class="ultimateEndSub" id="ultimateEndSub">ou talvez só o fim dessa página... 💜</div>
-        <div class="ultimateAlien" id="ultimateAlien">👽</div>
-        <div class="ultimateAlienText" id="ultimateAlienText">CONTINUA. 👽</div>
     </div>
 
 
@@ -2029,7 +2275,26 @@ function resetExperience(){
 
     const gift = document.getElementById("gift");
 
-    if(gift) gift.classList.remove("open");
+    if(gift){
+        gift.classList.remove("open");
+        gift.classList.remove("shaking");
+        gift.style.transform="";
+    }
+
+    const giftHintEl = document.querySelector(".giftHint");
+    if(giftHintEl) giftHintEl.style.opacity="";
+
+    const giftLightBurstEl = document.getElementById("giftLightBurst");
+    if(giftLightBurstEl) giftLightBurstEl.classList.remove("burst");
+
+    giftParticlesArr=[];
+    giftParticlesRunning=false;
+
+    const giftParticlesCanvas = document.getElementById("giftParticles");
+    if(giftParticlesCanvas){
+        const gctx = giftParticlesCanvas.getContext("2d");
+        gctx.clearRect(0,0,giftParticlesCanvas.width,giftParticlesCanvas.height);
+    }
 
     document
         .getElementById("giftLoveMessage")
@@ -2064,13 +2329,35 @@ function resetExperience(){
     finaleStarted=false;
     ambientRunning=false;
 
+    envelopeOpened=false;
+
+    const envelopeWrapEl = document.getElementById("envelopeWrap");
+    if(envelopeWrapEl) envelopeWrapEl.classList.remove("opened");
+
+    const envelopeEl = document.getElementById("envelope");
+    if(envelopeEl) envelopeEl.classList.remove("open");
+
+    const paperEl = document.getElementById("paper");
+    if(paperEl) paperEl.classList.remove("open","rising");
+
+    document
+        .querySelectorAll("#paperContent .paperLine")
+        .forEach(el=>el.classList.remove("show"));
+
+    letterParticlesArr=[];
+    letterParticlesRunning=false;
+
+    const letterCanvas = document.getElementById("letterParticles");
+    if(letterCanvas){
+        const lctx = letterCanvas.getContext("2d");
+        lctx.clearRect(0,0,letterCanvas.width,letterCanvas.height);
+    }
+
     document.getElementById("finalContent").classList.remove("reveal");
     document.getElementById("finaleLine").classList.remove("show","emphasis");
     document.getElementById("finaleLine").textContent="";
     document.getElementById("finaleBlackout").classList.remove("show");
     document.getElementById("albumWrap").classList.remove("show");
-    const albumBox=document.querySelector("#albumWrap .album");
-    if(albumBox) albumBox.classList.remove("emptyPhoto");
 
     const albumPage = document.getElementById("albumPage");
     albumPage.className="albumPage";
@@ -2083,6 +2370,27 @@ function resetExperience(){
     finaleCtx.clearRect(0,0,finaleCanvas.width,finaleCanvas.height);
 
     stars.classList.remove("finaleDim");
+
+    alienCameoShown=false;
+
+    const finalAlienEl = document.getElementById("finalAlien");
+    if(finalAlienEl){
+        finalAlienEl.style.display="none";
+        finalAlienEl.classList.remove("caught");
+        finalAlienEl.style.transform="";
+    }
+
+    const finalAlienBubbleEl = document.getElementById("finalAlienBubble");
+    if(finalAlienBubbleEl){
+        finalAlienBubbleEl.classList.remove("show");
+        finalAlienBubbleEl.textContent="";
+    }
+
+    const finalAlienCaptionEl = document.getElementById("finalAlienCaption");
+    if(finalAlienCaptionEl){
+        finalAlienCaptionEl.classList.remove("show");
+        finalAlienCaptionEl.textContent="";
+    }
 
     closeAlienMessage();
 }
@@ -2704,6 +3012,193 @@ heartLoop(0);
 
 
 /* =====================================================
+   CARTA: envelope que abre e a folha que emerge
+   ===================================================== */
+
+let envelopeOpened=false;
+let letterParticlesArr=[];
+let letterParticlesRunning=false;
+
+function ensureLetterParticleLoop(){
+
+    if(letterParticlesRunning) return;
+
+    letterParticlesRunning=true;
+
+    const canvas =
+        document.getElementById("letterParticles");
+
+    if(!canvas){
+        letterParticlesRunning=false;
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+
+    function frame(){
+
+        ctx.clearRect(
+            0,0,canvas.width,canvas.height
+        );
+
+        ctx.globalCompositeOperation="lighter";
+
+
+        letterParticlesArr.forEach(p=>{
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            p.vx *= .96;
+            p.vy = p.vy*.96+.01;
+
+            p.alpha -= .014;
+
+            if(p.alpha>0){
+
+                ctx.beginPath();
+                ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+                ctx.fillStyle=`hsla(${p.hue},100%,80%,${p.alpha})`;
+                ctx.fill();
+
+            }
+
+        });
+
+
+        letterParticlesArr =
+            letterParticlesArr.filter(p=>p.alpha>0);
+
+        ctx.globalCompositeOperation="source-over";
+
+
+        if(letterParticlesArr.length>0){
+
+            requestAnimationFrame(frame);
+
+        }else{
+
+            letterParticlesRunning=false;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        }
+
+    }
+
+    requestAnimationFrame(frame);
+
+}
+
+function burstLetterParticles(originY){
+
+    const centerX = window.innerWidth/2;
+    const centerY = originY || window.innerHeight/2;
+
+    for(let i=0;i<44;i++){
+
+        const angle = Math.random()*Math.PI*2;
+        const speed = 1+Math.random()*3.2;
+
+        letterParticlesArr.push({
+
+            x:centerX,
+            y:centerY,
+
+            vx:Math.cos(angle)*speed,
+            vy:Math.sin(angle)*speed-.6,
+
+            size:
+                Math.random()*2+.6,
+
+            alpha:1,
+
+            hue:265+Math.random()*55
+
+        });
+
+    }
+
+    ensureLetterParticleLoop();
+
+}
+
+
+function revealPaperLines(){
+
+    const lines =
+        document.querySelectorAll("#paperContent .paperLine");
+
+    lines.forEach((el,i)=>{
+
+        setTimeout(()=>{
+
+            el.classList.add("show");
+
+        },i*260);
+
+    });
+
+}
+
+
+function openEnvelope(){
+
+    if(envelopeOpened) return;
+
+    envelopeOpened=true;
+
+    tapFeedback([15,25,15]);
+
+
+    const envelope =
+        document.getElementById("envelope");
+
+    const envelopeWrap =
+        document.getElementById("envelopeWrap");
+
+    const paper =
+        document.getElementById("paper");
+
+
+    envelope.classList.add("open");
+
+    burstLetterParticles(window.innerHeight*0.42);
+
+
+    setTimeout(()=>{
+
+        envelopeWrap.classList.add("opened");
+
+        paper.classList.add("rising");
+
+        setTimeout(()=>{
+
+            paper.classList.add("open");
+
+            burstLetterParticles(window.innerHeight*0.5);
+
+            setTimeout(()=>{
+
+                revealPaperLines();
+
+            },550);
+
+        },500);
+
+    },550);
+
+}
+
+document
+    .getElementById("envelopeWrap")
+    .addEventListener("pointerdown",openEnvelope);
+
+
+/* =====================================================
    PLANETAS
    ===================================================== */
 
@@ -2715,13 +3210,13 @@ function planetMessage(number,el){
     const messages={
 
         1:
-        "Marte guarda a coragem de viver cada aventura com você. 🔴💜",
+        "Esse planeta guarda todos os momentos que eu quero viver com você. 💜",
 
         2:
-        "Vênus é o planeta do brilho... mas ainda perde pra você. ✨💜",
+        "Se o universo fosse infinito, ainda assim eu escolheria encontrar você. ✨",
 
         3:
-        "Saturno tem anéis... e eu só queria ficar preso nos seus momentos. 🪐💜"
+        "E esse pequeno planeta guarda um segredo: você é muito especial pra mim. 🌌"
 
     };
 
@@ -2777,7 +3272,7 @@ function secretPlanetMessage(){
     addCarinho(1);
 
     showThemeMessage(
-        "Achou Plutão. 🧊🌌<br><br>Ele ficou pequenininho e longe, mas ainda faz parte do nosso universo. 💜"
+        "Achou o nosso planeta escondido. 🪐<br><br>Esse aqui não tem nome ainda... porque ele é novo, assim como a gente. Vamos escrever a história dele juntos. 💜"
     );
 }
 
@@ -3606,28 +4101,194 @@ function openGift(){
 
     addCarinho(1);
 
-    tapFeedback([20,30,50]);
-
 
     const gift =
         document.getElementById("gift");
 
+    const giftHintEl =
+        document.querySelector(".giftHint");
 
-    gift.classList.add("open");
 
+    /* 1. a caixa balança e brilha, como se sentisse o toque */
 
-    /* espera a flor começar a subir */
+    gift.classList.add("shaking");
+
+    tapFeedback([12,12,12,12,20]);
+
+    if(giftHintEl) giftHintEl.style.opacity="0";
+
 
     setTimeout(()=>{
 
-        document
-            .getElementById("giftLoveMessage")
-            .classList.add("show");
+        gift.classList.remove("shaking");
 
 
-        heartRain("giftScreen");
+        /* 2. a tampa abre */
 
-    },650);
+        gift.classList.add("open");
+
+        tapFeedback([25,35,60]);
+
+
+        /* 3. uma luz sai de dentro da caixa */
+
+        const rect =
+            gift.getBoundingClientRect();
+
+        const originX =
+            rect.left+rect.width/2;
+
+        const originY =
+            rect.top+rect.height*0.28;
+
+        const lightBurst =
+            document.getElementById("giftLightBurst");
+
+        if(lightBurst){
+
+            lightBurst.style.left = originX+"px";
+            lightBurst.style.top = originY+"px";
+
+            lightBurst.classList.remove("burst");
+
+            void lightBurst.offsetWidth;
+
+            lightBurst.classList.add("burst");
+
+        }
+
+
+        /* 4. partículas explodem suavemente a partir da caixa */
+
+        burstGiftParticles(originX,originY,55);
+
+
+        /* espera a flor começar a subir */
+
+        setTimeout(()=>{
+
+            document
+                .getElementById("giftLoveMessage")
+                .classList.add("show");
+
+
+            heartRain("giftScreen");
+
+        },500);
+
+    },560);
+
+}
+
+
+/* =====================================================
+   PARTÍCULAS DA EXPLOSÃO SUAVE DO PRESENTE
+   ===================================================== */
+
+let giftParticlesArr=[];
+let giftParticlesRunning=false;
+
+function ensureGiftParticleLoop(){
+
+    if(giftParticlesRunning) return;
+
+    giftParticlesRunning=true;
+
+    const canvas =
+        document.getElementById("giftParticles");
+
+    if(!canvas){
+        giftParticlesRunning=false;
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+
+    function frame(){
+
+        ctx.clearRect(
+            0,0,canvas.width,canvas.height
+        );
+
+        ctx.globalCompositeOperation="lighter";
+
+
+        giftParticlesArr.forEach(p=>{
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            p.vx *= .965;
+            p.vy = p.vy*.965+.012;
+
+            p.alpha -= .012;
+
+            if(p.alpha>0){
+
+                ctx.beginPath();
+                ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+                ctx.fillStyle=`hsla(${p.hue},100%,80%,${p.alpha})`;
+                ctx.fill();
+
+            }
+
+        });
+
+
+        giftParticlesArr =
+            giftParticlesArr.filter(p=>p.alpha>0);
+
+        ctx.globalCompositeOperation="source-over";
+
+
+        if(giftParticlesArr.length>0){
+
+            requestAnimationFrame(frame);
+
+        }else{
+
+            giftParticlesRunning=false;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        }
+
+    }
+
+    requestAnimationFrame(frame);
+
+}
+
+function burstGiftParticles(x,y,count){
+
+    for(let i=0;i<(count||55);i++){
+
+        const angle = Math.random()*Math.PI*2;
+        const speed = 1.2+Math.random()*3.6;
+
+        giftParticlesArr.push({
+
+            x:x,
+            y:y,
+
+            vx:Math.cos(angle)*speed,
+            vy:Math.sin(angle)*speed-1,
+
+            size:
+                Math.random()*2.2+.6,
+
+            alpha:1,
+
+            hue:268+Math.random()*50
+
+        });
+
+    }
+
+    ensureGiftParticleLoop();
 
 }
 
@@ -3681,13 +4342,6 @@ async function showFinaleLine(el,text,opts){
 
     opts = opts || {};
 
-    const chapter=document.getElementById("storyChapter");
-
-    if(chapter && opts.chapter){
-        chapter.textContent=opts.chapter;
-        chapter.classList.add("show");
-    }
-
     el.innerHTML=text;
 
     el.classList.toggle("emphasis",!!opts.emphasis);
@@ -3698,80 +4352,8 @@ async function showFinaleLine(el,text,opts){
 
     el.classList.remove("show");
 
-    if(chapter && opts.chapter){
-        chapter.classList.remove("show");
-    }
-
     await wait(opts.fadeOut || 900);
 
-}
-
-function runFinalAlien(){
-    return new Promise(resolve=>{
-        const alien=document.getElementById("finalAlien");
-        const phrase=document.getElementById("finalAlienPhrase");
-        const hint=document.getElementById("finalAlienHint");
-        const bubble=document.getElementById("finalAlienBubble");
-        if(!alien){ resolve(); return; }
-
-        alien.classList.remove("run","touched");
-        void alien.offsetWidth;
-        alien.classList.add("run");
-        if(hint) hint.classList.add("show");
-
-        let finished=false;
-        const finish=()=>{
-            if(finished) return;
-            finished=true;
-            alien.classList.remove("run","touched");
-            alien.style.pointerEvents="none";
-            if(hint) hint.classList.remove("show");
-            setTimeout(()=>{
-                if(phrase) phrase.classList.add("show");
-                setTimeout(()=>{
-                    if(phrase) phrase.classList.remove("show");
-                    resolve();
-                },2400);
-            },500);
-        };
-
-        alien.onclick=()=>{
-            if(finished) return;
-            alien.classList.add("touched");
-            if(bubble) bubble.textContent="eu só vim conferir se ela chegou até o final... 👽💜";
-            tapFeedback([15,25,15]);
-            setTimeout(finish,900);
-        };
-
-        setTimeout(finish,7600);
-    });
-}
-
-async function goToFinalWithAlien(){
-    const overlay=document.getElementById("preFinalAlien");
-    const alien=document.getElementById("preFinalAlienCharacter");
-    const phrase=document.getElementById("preFinalAlienPhrase");
-    const bubble=document.getElementById("preFinalAlienBubble");
-    if(!overlay){ goTo(6); return; }
-
-    overlay.classList.add("show");
-    overlay.setAttribute("aria-hidden","false");
-    if(alien) alien.style.animation="";
-    if(phrase) phrase.classList.remove("show");
-    if(bubble) bubble.textContent="ACHOU QUE EU TINHA IDO EMBORA? 👽";
-    tapFeedback([15,25,15]);
-
-    await wait(6500);
-    if(bubble) bubble.textContent="eu só vim conferir se ela chegou até o final... 👽💜";
-    if(alien) alien.style.animationPlayState="paused";
-    await wait(2200);
-    if(phrase) phrase.classList.add("show");
-    await wait(2200);
-
-    overlay.classList.remove("show");
-    overlay.setAttribute("aria-hidden","true");
-    await wait(900);
-    goTo(6);
 }
 
 async function playFinalSequence(){
@@ -3796,29 +4378,52 @@ async function playFinalSequence(){
     const heartWordsEl =
         document.getElementById("heartWords");
 
-
-    /* a página desacelera: fundo mais quieto, mas com brilho ainda presente */
-
-    stars.classList.add("finaleDim");
-
     const finaleCanvasEl =
         document.getElementById("finaleCanvas");
 
+
+    /* FASE 0: chegada calma — parece que a página terminou normalmente */
+
+    await wait(1800);
+
+
+    /* FASE 0.5: o ambiente começa a ficar mais calmo */
+
+    stars.classList.add("finaleDim");
+
     startAmbientParticles(finaleCanvasEl);
+
+    await wait(900);
+
+
+    /* FASE 1: última risada — o alien volta antes de tudo ficar sério */
+
+    await playAlienCameo();
+
+
+    /* FASE 2: silêncio total, a tela escurece de vez antes do emocional */
+
+    blackout.classList.add("show");
+
+    await wait(1100);
+
+    blackout.classList.remove("show");
 
     await wait(700);
 
 
+    /* A PARTIR DAQUI: o final cinematográfico emocionante, sem mudanças */
+
     await showFinaleLine(
         line,
         "eu queria colocar nossas fotos aqui...",
-        {hold:2600,chapter:"último capítulo · uma coisa que faltou"}
+        {hold:2600}
     );
 
     await showFinaleLine(
         line,
         "mas percebi uma coisa.",
-        {hold:2000,chapter:"último capítulo · uma coisa que mudou"}
+        {hold:2000}
     );
 
 
@@ -3843,7 +4448,7 @@ async function playFinalSequence(){
 
     for(const memory of memories){
 
-        await showFinaleLine(line,memory,{hold:2100,chapter:"último capítulo · nossas lembranças"});
+        await showFinaleLine(line,memory,{hold:2100});
 
     }
 
@@ -3851,7 +4456,7 @@ async function playFinalSequence(){
     await showFinaleLine(
         line,
         "a gente ainda não tem muitas fotos...",
-        {hold:2400,chapter:"último capítulo · ainda não"}
+        {hold:2400}
     );
 
     await wait(1000);
@@ -3859,7 +4464,7 @@ async function playFinalSequence(){
     await showFinaleLine(
         line,
         "...porque ainda estamos vivendo a nossa história. 💜",
-        {hold:3000,emphasis:true,chapter:"último capítulo · mas isso é só o começo"}
+        {hold:3000,emphasis:true}
     );
 
 
@@ -3890,15 +4495,10 @@ async function playFinalSequence(){
     await wait(500);
 
     albumPage.className="albumPage empty";
-    albumWrap.querySelector(".album").classList.add("emptyPhoto");
 
     albumPage.innerHTML =
-        "<div class=\"photoMoment\">" +
-        "<div class=\"photoFrame\"><div class=\"photoFrameShine\"></div><div class=\"photoCaption\">nossa primeira foto 💜</div></div>" +
-        "<span class=\"albumEmptyTitle\">ainda está esperando a gente.</span>" +
-        "<span class=\"finalMemoryLabel\">essa história ainda está sendo escrita...</span>" +
-        "<span>e quando ela existir, vai ser só o começo.</span>" +
-        "</div>";
+        "<span class=\"albumEmptyTitle\">📸 nossa primeira foto ainda está esperando a gente.</span>" +
+        "mas quando ela existir, vai ser só o começo.";
 
     void albumPage.offsetWidth;
 
@@ -3932,62 +4532,267 @@ async function playFinalSequence(){
         .getElementById("finalContent")
         .classList.add("reveal");
 
-    heartWordsEl.classList.add("finalHeartPulse");
-
-    await wait(4200);
-    await playUltimateEnding();
-
-}
-
-function finalHeartTap(event){
-
-    const screen=document.getElementById("finalScreen");
-    const content=document.getElementById("finalContent");
-    if(!screen || !content || !content.classList.contains("reveal")) return;
-
-    const rect=screen.getBoundingClientRect();
-    const x=event.clientX-rect.left;
-    const y=event.clientY-rect.top;
-
-    for(let i=0;i<18;i++){
-        const spark=document.createElement("div");
-        spark.className="finalTapSpark";
-        spark.style.left=x+"px";
-        spark.style.top=y+"px";
-        const angle=Math.random()*Math.PI*2;
-        const distance=35+Math.random()*80;
-        spark.style.setProperty("--dx",Math.cos(angle)*distance+"px");
-        spark.style.setProperty("--dy",Math.sin(angle)*distance+"px");
-        screen.appendChild(spark);
-        setTimeout(()=>spark.remove(),950);
-    }
-    tapFeedback(12);
-}
-
-async function playUltimateEnding(){
-
-    const overlay=document.getElementById("ultimateEnd");
-    const word=document.getElementById("ultimateEndWord");
-    const sub=document.getElementById("ultimateEndSub");
-    const alien=document.getElementById("ultimateAlien");
-    const alienText=document.getElementById("ultimateAlienText");
-    if(!overlay) return;
-
-    overlay.classList.add("show");
-    await wait(1700);
-    if(sub) sub.classList.add("show");
-    await wait(2200);
-    if(word) word.style.opacity="0";
-    if(sub) sub.classList.remove("show");
-    await wait(900);
-    if(alien) alien.classList.add("show");
-    await wait(650);
-    if(alienText) alienText.classList.add("show");
-
 }
 
 
-let ambientRunning=false;
+let alienCameoShown=false;
+
+function playAlienCameo(){
+
+    return new Promise(resolve=>{
+
+        if(alienCameoShown){
+            resolve();
+            return;
+        }
+
+        alienCameoShown=true;
+
+
+        const alienEl =
+            document.getElementById("finalAlien");
+
+        const bubbleEl =
+            document.getElementById("finalAlienBubble");
+
+        const captionEl =
+            document.getElementById("finalAlienCaption");
+
+
+        alienEl.style.display="block";
+        alienEl.classList.remove("caught");
+        alienEl.style.transform="";
+
+        bubbleEl.classList.remove("show");
+        bubbleEl.textContent="";
+
+
+        const W=window.innerWidth;
+        const H=window.innerHeight;
+
+        const startX=-60;
+        const startY=H*0.22;
+
+        const endX=W+60;
+        const endY=H*0.5;
+
+        const DURATION=5000;
+
+        const startTime=performance.now();
+
+        let caught=false;
+        let caughtAt=null;
+        let lastTrail=0;
+
+
+        function setPos(x,y){
+
+            alienEl.style.left=x+"px";
+            alienEl.style.top=y+"px";
+
+        }
+
+        setPos(startX,startY);
+
+
+        function onTap(){
+
+            if(caught) return;
+
+            caught=true;
+            caughtAt=performance.now();
+
+            alienEl.classList.add("caught");
+
+            tapFeedback([15,20,15]);
+
+            setTimeout(()=>{
+
+                bubbleEl.textContent =
+                    "eu só voltei pra avisar uma última coisa...";
+
+                bubbleEl.classList.add("show");
+
+            },150);
+
+            setTimeout(()=>{
+
+                bubbleEl.classList.remove("show");
+
+                setTimeout(()=>{
+
+                    bubbleEl.textContent =
+                        "seu namorado ainda te ama descontroladamente. 👽💜";
+
+                    bubbleEl.classList.add("show");
+
+                },250);
+
+            },1450);
+
+        }
+
+        alienEl.addEventListener(
+            "pointerdown",onTap,{once:true}
+        );
+
+
+        function ease(t){
+
+            return t<.5
+                ? 2*t*t
+                : 1-Math.pow(-2*t+2,2)/2;
+
+        }
+
+
+        function finishFlight(x,y){
+
+            alienEl.removeEventListener("pointerdown",onTap);
+
+            alienEl.style.display="none";
+            alienEl.classList.remove("caught");
+            alienEl.style.transform="";
+
+            bubbleEl.classList.remove("show");
+
+
+            const starX =
+                Math.min(Math.max(x,W*0.15),W*0.85);
+
+            const starY =
+                Math.min(Math.max(y,H*0.15),H*0.35);
+
+            settleTrailIntoFadingStars(starX,starY);
+
+
+            if(!caught){
+
+                captionEl.textContent =
+                    "opa, vim de penetra no final. 👽💜";
+
+                captionEl.classList.add("show");
+
+                setTimeout(()=>{
+
+                    captionEl.classList.remove("show");
+
+                },2200);
+
+            }
+
+
+            /* pausa: as estrelinhas do rastro brilham e se apagam antes do escurecer */
+
+            setTimeout(resolve,4000);
+
+        }
+
+
+        function frame(now){
+
+            const elapsed = now-startTime;
+
+            if(!caught){
+
+                const t =
+                    Math.min(1,elapsed/DURATION);
+
+                const eased = ease(t);
+
+                const x =
+                    startX+(endX-startX)*eased;
+
+                const y =
+                    startY+(endY-startY)*eased+
+                    Math.sin(t*Math.PI*2.4)*22;
+
+                setPos(x,y);
+
+
+                if(now-lastTrail>55){
+
+                    lastTrail=now;
+                    spawnAmbientTrail(x+13,y+13);
+
+                }
+
+
+                if(t>=1){
+
+                    finishFlight(x,y);
+                    return;
+
+                }
+
+            }else{
+
+                const heldFor = now-caughtAt;
+
+                if(heldFor<3200){
+
+                    if(now-lastTrail>140){
+
+                        lastTrail=now;
+
+                        const rect =
+                            alienEl.getBoundingClientRect();
+
+                        spawnAmbientTrail(
+                            rect.left+rect.width/2,
+                            rect.top+rect.height/2
+                        );
+
+                    }
+
+                }else if(heldFor<3200+900){
+
+                    const exitProgress =
+                        (heldFor-3200)/900;
+
+                    const rect =
+                        alienEl.getBoundingClientRect();
+
+                    const exitX =
+                        rect.left+(W*0.4)*exitProgress;
+
+                    const exitY =
+                        rect.top-(H*0.22)*exitProgress;
+
+                    setPos(exitX,exitY);
+
+                    alienEl.style.transform =
+                        `rotate(${exitProgress*540}deg) scale(${1-exitProgress*.4})`;
+
+
+                    if(now-lastTrail>50){
+
+                        lastTrail=now;
+                        spawnAmbientTrail(exitX+13,exitY+13);
+
+                    }
+
+                }else{
+
+                    const rect =
+                        alienEl.getBoundingClientRect();
+
+                    finishFlight(rect.left,rect.top);
+                    return;
+
+                }
+
+            }
+
+            requestAnimationFrame(frame);
+
+        }
+
+        requestAnimationFrame(frame);
+
+    });
+
+}
 
 function startAmbientParticles(canvas){
 
@@ -3999,12 +4804,15 @@ function startAmbientParticles(canvas){
     canvas.height = window.innerHeight;
 
 
+    ambientParticles=[];
+
     const COUNT=55;
-    const particles=[];
 
     for(let i=0;i<COUNT;i++){
 
-        particles.push({
+        ambientParticles.push({
+
+            kind:"ambient",
 
             x:Math.random()*canvas.width,
             y:Math.random()*canvas.height,
@@ -4040,33 +4848,92 @@ function startAmbientParticles(canvas){
         ctx.globalCompositeOperation="lighter";
 
 
-        particles.forEach(p=>{
+        ambientParticles.forEach(p=>{
 
-            p.x += p.speedX;
-            p.y += p.speedY;
+            if(p.kind==="ambient"){
 
-            if(p.x<0) p.x=canvas.width;
-            if(p.x>canvas.width) p.x=0;
-            if(p.y<0) p.y=canvas.height;
-            if(p.y>canvas.height) p.y=0;
+                p.x += p.speedX;
+                p.y += p.speedY;
+
+                if(p.x<0) p.x=canvas.width;
+                if(p.x>canvas.width) p.x=0;
+                if(p.y<0) p.y=canvas.height;
+                if(p.y>canvas.height) p.y=0;
 
 
-            const alpha =
-                Math.max(
-                    0,
-                    .25+Math.sin(time*.001+p.twinkle)*.2
-                );
+                const alpha =
+                    Math.max(
+                        0,
+                        .25+Math.sin(time*.001+p.twinkle)*.2
+                    );
 
-            ctx.beginPath();
+                ctx.beginPath();
+                ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+                ctx.fillStyle=`hsla(${p.hue},100%,80%,${alpha})`;
+                ctx.fill();
 
-            ctx.arc(
-                p.x,p.y,p.size,0,Math.PI*2
-            );
+            }else if(p.kind==="trail"){
 
-            ctx.fillStyle =
-                `hsla(${p.hue},100%,80%,${alpha})`;
+                p.x += p.vx;
+                p.y += p.vy;
 
-            ctx.fill();
+                p.vx *= .96;
+                p.vy *= .96;
+
+                p.alpha -= .022;
+
+                if(p.alpha>0){
+
+                    ctx.beginPath();
+                    ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+                    ctx.fillStyle=`hsla(${p.hue},100%,78%,${p.alpha})`;
+                    ctx.fill();
+
+                }
+
+            }else if(p.kind==="converging"){
+
+                p.progress =
+                    Math.min(1,p.progress+.035);
+
+                p.x = p.startX+(p.targetX-p.startX)*p.progress;
+                p.y = p.startY+(p.targetY-p.startY)*p.progress;
+
+                ctx.beginPath();
+                ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+                ctx.fillStyle=`hsla(${p.hue},100%,80%,${p.alpha})`;
+                ctx.fill();
+
+            }else if(p.kind==="star"){
+
+                const age = time-p.bornAt;
+
+                if(age>p.fadeAfter){
+
+                    p.life =
+                        Math.max(
+                            0,
+                            1-((age-p.fadeAfter)/p.fadeDuration)
+                        );
+
+                }
+
+                const pulse =
+                    1+Math.sin(time*.0025+p.twinkle)*.22;
+
+                drawSparkle(ctx,p.x,p.y,p.size*pulse,p.hue,p.life);
+
+            }
+
+        });
+
+
+        ambientParticles = ambientParticles.filter(p=>{
+
+            if(p.kind==="trail") return p.alpha>0;
+            if(p.kind==="converging") return p.progress<1;
+            if(p.kind==="star") return p.life>0;
+            return true;
 
         });
 
@@ -4084,12 +4951,171 @@ function startAmbientParticles(canvas){
 function stopAmbientParticles(canvas){
 
     ambientRunning=false;
+    ambientParticles=[];
 
     const ctx = canvas.getContext("2d");
 
     ctx.clearRect(
         0,0,canvas.width,canvas.height
     );
+
+}
+
+function drawSparkle(ctx,x,y,size,hue,life){
+
+    life = life===undefined ? 1 : life;
+
+    ctx.save();
+    ctx.translate(x,y);
+
+    ctx.beginPath();
+    ctx.arc(0,0,size*.55,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${hue},100%,88%,${.95*life})`;
+    ctx.fill();
+
+    ctx.strokeStyle=`hsla(${hue},100%,88%,${.55*life})`;
+    ctx.lineWidth=1;
+
+    const spike = size*3.2;
+
+    ctx.beginPath();
+    ctx.moveTo(-spike,0);
+    ctx.lineTo(spike,0);
+    ctx.moveTo(0,-spike);
+    ctx.lineTo(0,spike);
+    ctx.stroke();
+
+    ctx.restore();
+
+}
+
+function spawnAmbientTrail(x,y){
+
+    for(let i=0;i<2;i++){
+
+        ambientParticles.push({
+
+            kind:"trail",
+
+            x:x+(Math.random()-.5)*6,
+            y:y+(Math.random()-.5)*6,
+
+            vx:(Math.random()-.5)*.6,
+            vy:(Math.random()-.5)*.6,
+
+            size:
+                Math.random()*1.6+.6,
+
+            alpha:.9,
+
+            hue:270+Math.random()*40
+
+        });
+
+    }
+
+}
+
+function settleTrailIntoFadingStars(nearX,nearY){
+
+    const leftoverTrail =
+        ambientParticles.filter(p=>p.kind==="trail");
+
+    const starCount =
+        Math.min(5,Math.max(2,Math.floor(leftoverTrail.length/3)));
+
+    for(let i=0;i<starCount;i++){
+
+        const angle = Math.random()*Math.PI*2;
+        const dist = 18+Math.random()*46;
+
+        const targetX = nearX+Math.cos(angle)*dist;
+        const targetY = nearY+Math.sin(angle)*dist;
+
+        const contributors =
+            leftoverTrail.splice(0,3);
+
+        contributors.forEach(p=>{
+
+            p.kind="converging";
+            p.startX=p.x;
+            p.startY=p.y;
+            p.targetX=targetX;
+            p.targetY=targetY;
+            p.progress=0;
+            p.alpha=1;
+
+        });
+
+
+        const missing = 3-contributors.length;
+
+        for(let j=0;j<missing;j++){
+
+            const a2=Math.random()*Math.PI*2;
+            const d2=20+Math.random()*30;
+
+            const sx=targetX+Math.cos(a2)*d2;
+            const sy=targetY+Math.sin(a2)*d2;
+
+            ambientParticles.push({
+
+                kind:"converging",
+
+                startX:sx,
+                startY:sy,
+
+                x:sx,
+                y:sy,
+
+                targetX:targetX,
+                targetY:targetY,
+
+                progress:0,
+
+                size:
+                    Math.random()*1.3+.6,
+
+                alpha:1,
+
+                hue:270+Math.random()*40
+
+            });
+
+        }
+
+
+        setTimeout(()=>{
+
+            ambientParticles.push({
+
+                kind:"star",
+
+                x:targetX,
+                y:targetY,
+
+                size:2+Math.random()*.7,
+
+                hue:275+Math.random()*30,
+
+                twinkle:
+                    Math.random()*Math.PI*2,
+
+                bornAt:
+                    performance.now(),
+
+                fadeAfter:
+                    1300+Math.random()*500,
+
+                fadeDuration:1500,
+
+                life:1
+
+            });
+
+        },550+i*120);
+
+    }
 
 }
 
@@ -4326,19 +5352,6 @@ function showHeartWords(container,words,centerX,centerY,scale){
     });
 
 }
-
-
-/* toque sutil: a página reage ao dedo sem atrapalhar botões e elementos interativos */
-document.addEventListener("pointerdown",function(e){
-    if(e.pointerType === "mouse") return;
-    if(e.target.closest("button,.gift,.planet,.alien,.secretStar,.musicBtn,.nextBtn,.themeMessageBox")) return;
-    const ripple=document.createElement("div");
-    ripple.className="touchRipple";
-    ripple.style.left=e.clientX+"px";
-    ripple.style.top=e.clientY+"px";
-    document.body.appendChild(ripple);
-    setTimeout(()=>ripple.remove(),800);
-});
 
 
 </script>
